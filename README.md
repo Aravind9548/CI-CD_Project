@@ -1,2 +1,2 @@
 # CI-CD_Project
-and i have added the jenkins 
+and i have added the jenkinsfile
