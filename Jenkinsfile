@@ -4,7 +4,7 @@ pipeline {
     // Environment variables for our pipeline
     environment {
         // Change this to your Docker Hub username
-        DOCKERHUB_USERNAME = 'YOUR_DOCKERHUB_USERNAME'
+        DOCKERHUB_USERNAME = 'aravindreddy9548'
         // Uses the Jenkins Credential ID you created
         DOCKERHUB_CREDS = 'dockerhub-creds' 
         // The public IP of your EC2 instance
