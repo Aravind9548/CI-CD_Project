@@ -1,0 +1,24 @@
+{
+    "GET:/todos": {
+        "status_code": 403,
+        "headers": {
+            "Server": "cloudflare",
+            "Date": "Wed, 05 Nov 2025 19:54:45 GMT",
+            "Content-Type": "text/html",
+            "Content-Length": "151",
+            "CF-RAY": "999ee79f4d82f543-SIN"
+        },
+        "content_b64": "PGh0bWw+DQo8aGVhZD48dGl0bGU+NDAzIEZvcmJpZGRlbjwvdGl0bGU+PC9oZWFkPg0KPGJvZHk+DQo8Y2VudGVyPjxoMT40MDMgRm9yYmlkZGVuPC9oMT48L2NlbnRlcj4NCjxocj48Y2VudGVyPmNsb3VkZmxhcmU8L2NlbnRlcj4NCjwvYm9keT4NCjwvaHRtbD4NCg=="
+    },
+    "GET:/todos/1": {
+        "status_code": 403,
+        "headers": {
+            "Server": "cloudflare",
+            "Date": "Wed, 05 Nov 2025 19:57:51 GMT",
+            "Content-Type": "text/html",
+            "Content-Length": "151",
+            "CF-RAY": "999eec2cfad5c1c8-SIN"
+        },
+        "content_b64": "PGh0bWw+DQo8aGVhZD48dGl0bGU+NDAzIEZvcmJpZGRlbjwvdGl0bGU+PC9oZWFkPg0KPGJvZHk+DQo8Y2VudGVyPjxoMT40MDMgRm9yYmlkZGVuPC9oMT48L2NlbnRlcj4NCjxocj48Y2VudGVyPmNsb3VkZmxhcmU8L2NlbnRlcj4NCjwvYm9keT4NCjwvaHRtbD4NCg=="
+    }
+}

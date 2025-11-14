@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Tracker</title>
+  <link rel="stylesheet" href="front.css">
+</head>
+<body>
+  <h1>Task Tracker</h1>
+  <div class="task-input">
+    <input type="text" id="taskInput" placeholder="Enter new task..." />
+    <button id="addBtn">Add Task</button>
+  </div>
+  <div class="filters">
+    <button onclick="filterTasks('all')">All</button>
+    <button onclick="filterTasks('todo')">Todo</button>
+    <button onclick="filterTasks('in-progress')">In Progress</button>
+    <button onclick="filterTasks('done')">Done</button>
+  </div>
+  <ul id="taskList"></ul>
+
+  <script src="back.js"></script>
+</body>
+</html>

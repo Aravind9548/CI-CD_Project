@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Converter (SPA)</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { text-align: center; }
+        .converter-section { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+        .form-group { margin-bottom: 10px; }
+        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        #result-box { margin-top: 20px; padding: 15px; border: 2px solid #ccc; background-color: #e9ecef; border-radius: 5px; display: none; }
+        #result-text { font-size: 1.5em; font-weight: bold; }
+        .success { color: #28a745; border-color: #28a745; }
+        .error { color: #dc3545; border-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <h1>Unit Converter (Microservices)</h1>
+
+    <div id="result-box">
+        <p id="result-text"></p>
+    </div>
+
+    <div class="converter-section">
+        <h3>Length Conversion</h3>
+        <form id="length_form">
+            <input type="hidden" name="form_id" value="length_form">
+            <div class="form-group">
+                <label>Value:</label>
+                <input type="number" name="input_value" step="any" required>
+            </div>
+            <div class="form-group">
+                <label>From:</label>
+                <select name="unit_from">
+                    <option value="millimeter">millimeter</option>
+                    <option value="centimeter">centimeter</option>
+                    <option value="meter">meter</option>
+                    <option value="kilometer">kilometer</option>
+                    <option value="inch">inch</option>
+                    <option value="foot">foot</option>
+                    <option value="yard">yard</option>
+                    <option value="mile">mile</option>
+                </select>
+                <label>To:</label>
+                <select name="unit_to">
+                    <option value="millimeter">millimeter</option>
+                    <option value="centimeter">centimeter</option>
+                    <option value="meter">meter</option>
+                    <option value="kilometer">kilometer</option>
+                    <option value="inch">inch</option>
+                    <option value="foot">foot</option>
+                    <option value="yard">yard</option>
+                    <option value="mile">mile</option>
+                </select>
+            </div>
+            <button type="submit">Convert Length</button>
+        </form>
+    </div>
+
+    <div class="converter-section">
+        <h3>Weight Conversion</h3>
+        <form id="weight_form">
+            <input type="hidden" name="form_id" value="weight_form">
+            <div class="form-group">
+                <label>Value:</label>
+                <input type="number" name="input_value" step="any" required>
+            </div>
+            <div class="form-group">
+                <label>From:</label>
+                <select name="unit_from">
+                    <option value="milligram">milligram</option>
+                    <option value="gram">gram</option>
+                    <option value="kilogram">kilogram</option>
+                    <option value="ounce">ounce</option>
+                    <option value="pound">pound</option>
+                </select>
+                <label>To:</label>
+                <select name="unit_to">
+                    <option value="milligram">milligram</option>
+                    <option value="gram">gram</option>
+                    <option value="kilogram">kilogram</option>
+                    <option value="ounce">ounce</option>
+                    <option value="pound">pound</option>
+                </select>
+            </div>
+            <button type="submit">Convert Weight</button>
+        </form>
+    </div>
+
+    <div class="converter-section">
+        <h3>Temperature Conversion</h3>
+        <form id="temp_form">
+            <input type="hidden" name="form_id" value="temp_form">
+            <div class="form-group">
+                <label>Value:</label>
+                <input type="number" name="input_value" step="any" required>
+            </div>
+            <div class="form-group">
+                <label>From:</label>
+                <select name="unit_from">
+                    <option value="Celsius">Celsius</option>
+                    <option value="Fahrenheit">Fahrenheit</option>
+                    <option value="Kelvin">Kelvin</option>
+                </select>
+                <label>To:</label>
+                <select name="unit_to">
+                    <option value="Celsius">Celsius</option>
+                    <option value="Fahrenheit">Fahrenheit</option>
+                    <option value="Kelvin">Kelvin</option>
+                </select>
+            </div>
+            <button type="submit">Convert Temp</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const resultBox = document.getElementById('result-box');
+            const resultText = document.getElementById('result-text');
+
+            const handleFormSubmit = async (event) => {
+                event.preventDefault();
+                const form = event.target;
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    // This fetch call points to your MAIN server (app.py)
+                    const response = await fetch('http://127.0.0.1:5000/api/convert', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+
+                    const responseData = await response.json();
+
+                    if (response.ok) {
+                      // Success! The task was accepted.
+                        resultText.textContent = responseData.message; // e.g., "Conversion task accepted."
+                        resultBox.className = 'success'; 
+                    } else {
+                        // Error from the server
+                        resultText.textContent = `Error: ${responseData.error}`;
+                        resultBox.className = 'error';
+                    }
+                } catch (error) {
+                    resultText.textContent = `Error: Could not connect to server. ${error}`;
+                    resultBox.className = 'error';
+                }
+                
+                resultBox.style.display = 'block';
+            };
+
+            document.getElementById('length_form').addEventListener('submit', handleFormSubmit);
+            document.getElementById('weight_form').addEventListener('submit', handleFormSubmit);
+            document.getElementById('temp_form').addEventListener('submit', handleFormSubmit);
+        });
+    </script>
+</body>
+</html>

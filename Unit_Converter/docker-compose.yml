@@ -1,0 +1,83 @@
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+  
+  # --- ADD THIS NEW SERVICE ---
+  db:
+    image: mysql:8.0
+    container_name: mysql_db
+    ports:
+      # Expose to host machine for debugging
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: mysecretpassword
+      MYSQL_DATABASE: converter_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    volumes:
+      # This saves your database data even if you stop the container
+      - mysql_data:/var/lib/mysql
+
+  frontend:
+    image: nginx:alpine
+    volumes:
+      - ./public:/usr/share/nginx/html
+    ports:
+      - "5500:80"
+    depends_on:
+      - api
+
+  api:
+    build: .
+    command: python app.py
+    ports:
+      - "5000:5000"
+    depends_on:
+      - kafka
+      - db  # <-- Make sure API waits for the DB
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: "kafka:29092"
+      # --- Add DB environment variables ---
+      DB_HOST: "db"
+      DB_NAME: "converter_db"
+      DB_USER: "user"
+      DB_PASS: "password"
+
+  compute:
+    build: .
+    command: python cal.py
+    depends_on:
+      - kafka
+      - db  # <-- Make sure compute waits for the DB
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: "kafka:29092"
+      # --- Add DB environment variables ---
+      DB_HOST: "db"
+      DB_NAME: "converter_db"
+      DB_USER: "user"
+      DB_PASS: "password"
+
+# --- Add this at the very bottom ---
+volumes:
+  mysql_data:
