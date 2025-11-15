@@ -20,7 +20,7 @@ pipeline {
                 echo 'Building all services...'
                 // This command reads your docker-compose.yml and builds 
                 // the images named 'unit-converter-api' and 'unit-converter-compute'
-                sh 'docker-compose build'
+                bat 'docker-compose build'
             }
         }
 
@@ -29,14 +29,14 @@ pipeline {
                 echo 'Logging in to Docker Hub...'
                 // Logs in using the Jenkins credential
                 withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDS, usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                    sh "docker login -u ${env.USER} -p ${env.PASS}"
+                    bat "docker login -u ${env.USER} -p ${env.PASS}"
                 }
                 
                 echo 'Pushing API image...'
-                sh "docker push ${env.DOCKERHUB_USERNAME}/unit-converter-api:latest"
+                bat "docker push ${env.DOCKERHUB_USERNAME}/unit-converter-api:latest"
                 
                 echo 'Pushing Compute image...'
-                sh "docker push ${env.DOCKERHUB_USERNAME}/unit-converter-compute:latest"
+                bat "docker push ${env.DOCKERHUB_USERNAME}/unit-converter-compute:latest"
             }
         }
 
@@ -46,7 +46,7 @@ pipeline {
                 
                 // Use the SSH key to log in to the EC2 instance
                 sshagent([EC2_CREDS]) {
-                    sh '''
+                    bat '''
                         ssh -o StrictHostKeyChecking=no ${EC2_HOST} "
                             
                             # 1. Go to the project folder
@@ -69,7 +69,7 @@ pipeline {
         // This 'post' block always runs, no matter what
         always {
             echo 'Logging out of Docker Hub...'
-            sh 'docker logout'
+            bat 'docker logout'
         }
     }
 }
