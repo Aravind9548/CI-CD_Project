@@ -50,6 +50,7 @@ services:
 
   api:
     build: .
+    image: aravindreddy9548/unit-converter-api:latest
     command: python app.py
     ports:
       - "5000:5000"
@@ -66,6 +67,7 @@ services:
 
   compute:
     build: .
+    image: aravindreddy9548/unit-converter-compute:latest
     command: python cal.py
     depends_on:
       - kafka
