@@ -4,6 +4,8 @@ pipeline {
     // Environment variables for our pipeline
     environment {
         // Change this to your Docker Hub username
+        PROJECT_DIR = 'Unit_Converter'
+        
         DOCKERHUB_USERNAME = 'aravindreddy9548'
         // Uses the Jenkins Credential ID you created
         DOCKERHUB_CREDS = 'dockerhub-creds' 
