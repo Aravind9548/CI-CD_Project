@@ -5,7 +5,7 @@ pipeline {
     environment {
         // Change this to your Docker Hub username
         PROJECT_DIR = 'Unit_Converter'
-        
+
         DOCKERHUB_USERNAME = 'aravindreddy9548'
         // Uses the Jenkins Credential ID you created
         DOCKERHUB_CREDS = 'dockerhub-creds' 
@@ -22,12 +22,15 @@ pipeline {
                 echo 'Building all services...'
                 // This command reads your docker-compose.yml and builds 
                 // the images named 'unit-converter-api' and 'unit-converter-compute'
-                bat 'docker-compose build'
+              dir(PROJECT_DIR) { 
+                    bat 'docker-compose build'
+                }
             }
         }
 
         stage('Push to Docker Hub') {
             steps {
+                dir(PROJECT_DIR) {
                 echo 'Logging in to Docker Hub...'
                 // Logs in using the Jenkins credential
                 withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDS, usernameVariable: 'USER', passwordVariable: 'PASS')]) {
@@ -52,7 +55,7 @@ pipeline {
                         ssh -o StrictHostKeyChecking=no ${EC2_HOST} "
                             
                             # 1. Go to the project folder
-                            cd ~/my-project
+                            cd ~/my-project/${PROJECT_DIR}
                             
                             # 2. IMPORTANT: Pull the new images from Docker Hub
                             docker-compose pull
@@ -70,8 +73,10 @@ pipeline {
     post {
         // This 'post' block always runs, no matter what
         always {
+            dir(PROJECT_DIR) {
             echo 'Logging out of Docker Hub...'
             bat 'docker logout'
         }
+      }
     }
 }
