@@ -85,6 +85,23 @@ docker compose build
             }
 
         }
+        stage('Debug SSH') {
+
+    steps {
+
+        bat '''
+
+  where ssh
+
+  ssh -V
+
+'''
+
+    }
+
+}
+
+ 
  
         stage('Deploy to EC2') {
 
