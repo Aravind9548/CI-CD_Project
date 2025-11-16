@@ -11,7 +11,7 @@ pipeline {
         // Uses the Jenkins Credential ID you created
         DOCKERHUB_CREDS = 'dockerhub-creds' 
         // The public IP of your EC2 instance
-        EC2_HOST = 'ubuntu@YOUR_EC2_PUBLIC_IP' // Make sure you've filled this in
+        EC2_HOST = 'ubuntu@54.213.96.150' // Make sure you've filled this in
         // The Jenkins Credential ID for your .pem file
         EC2_CREDS = 'ec2-ssh-key' 
     }
