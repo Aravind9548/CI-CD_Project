@@ -51,40 +51,31 @@ docker compose build
         }
  
         stage('Push to Docker Hub') {
-
-            steps {
-
-                dir(PROJECT_DIR) {
-
-                    echo 'Logging in to Docker Hub...'
+    steps {
+        dir(PROJECT_DIR) {
+            echo 'Logging in to Docker Hub...'
  
-                    withCredentials([usernamePassword(
-
-                        credentialsId: DOCKERHUB_CREDS,
-
-                        usernameVariable: 'USER',
-
-                        passwordVariable: 'PASS'
-
-                    )]) {
-
-                        bat 'docker login -u %USER% -p %PASS%'
-
-                    }
+            withCredentials([usernamePassword(
+                credentialsId: DOCKERHUB_CREDS,
+                usernameVariable: 'DOCKER_USER',
+                passwordVariable: 'DOCKER_PASS'
+            )]) {
+                // 1) Login using credentials
+                bat 'docker login -u %DOCKER_USER% -p %DOCKER_PASS%'
  
-                    echo 'Pushing API image...'
-
-                    bat "docker push %DOCKERHUB_USERNAME%/unit-converter-api:latest"
+                // 2) Show who we are (safe to log)
+                bat 'echo Logged in as %DOCKER_USER%'
  
-                    echo 'Pushing Compute image...'
-
-                    bat "docker push %DOCKERHUB_USERNAME%/unit-converter-compute:latest"
-
-                }
-
+                // 3) Push images under that same username
+                echo 'Pushing API image...'
+                bat "docker push %DOCKER_USER%/unit-converter-api:latest"
+ 
+                echo 'Pushing Compute image...'
+                bat "docker push %DOCKER_USER%/unit-converter-compute:latest"
             }
-
         }
+    }
+}
         stage('Debug SSH') {
 
     steps {
