@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // !! ADD THIS NEW VARIABLE !!
-        // Change this to the name of the folder that contains your docker-compose.yml
+        // Change this to the name of the folder that contains your docker compose.yml
         PROJECT_DIR = 'Unit_Converter' 
 
         // Change this to your Docker Hub username
@@ -23,7 +23,7 @@ pipeline {
                 echo "Building all services in ${env.PROJECT_DIR}..."
                 // Tell Jenkins to step into your subfolder first
                 dir(PROJECT_DIR) { 
-                    bat 'docker-compose build'
+                    bat 'docker compose build'
                 }
             }
         }
@@ -58,10 +58,10 @@ pipeline {
                             cd ~/my-project/${PROJECT_DIR} 
                             
                             # 1. Pull the new images from Docker Hub
-                            docker-compose pull
+                            docker compose pull
                             
                             # 2. Restart the services using the new images
-                            docker-compose up -d
+                            docker compose up -d
                         "
                     '''
                 }
