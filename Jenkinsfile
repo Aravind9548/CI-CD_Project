@@ -116,7 +116,7 @@ docker compose build
 
                     bat """
 
-    ssh -i "%SSH_KEY%" -o StrictHostKeyChecking=no %EC2_HOST% "cd ~/my-project/${PROJECT_DIR} && docker compose pull && docker compose up -d"
+    ssh -i "%SSH_KEY%" -o StrictHostKeyChecking=no %EC2_HOST% "cd ~/my-project/${PROJECT_DIR} && docker-compose pull && docker-compose up -d"
 
 """
 
