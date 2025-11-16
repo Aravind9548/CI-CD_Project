@@ -1,81 +1,145 @@
 pipeline {
-    agent any // This agent is your Windows machine
 
+    // Your Jenkins master/agent is Windows
+
+    agent any
+ 
     environment {
-        // !! ADD THIS NEW VARIABLE !!
-        // Change this to the name of the folder that contains your docker compose.yml
-        PROJECT_DIR = 'Unit_Converter' 
 
-        // Change this to your Docker Hub username
+        PROJECT_DIR      = 'Unit_Converter'
+ 
         DOCKERHUB_USERNAME = 'aravindreddy9548'
-        // Uses the Jenkins Credential ID you created
-        DOCKERHUB_CREDS = 'dockerhub-creds' 
-        // The public IP of your EC2 instance
-        EC2_HOST = 'ubuntu@54.213.96.150' // Make sure you've filled this in
-        // The Jenkins Credential ID for your .pem file
-        EC2_CREDS = 'ec2-ssh-key' 
-    }
 
+        DOCKERHUB_CREDS    = 'dockerhub-creds'
+ 
+        // e.g. ubuntu@11.22.33.44
+
+        EC2_HOST        = 'ubuntu@54.213.96.150'
+
+        // Jenkins SSH private key credential ID (.pem)
+
+        EC2_CREDS       = 'ec2-ssh-key'
+
+    }
+ 
     stages {
-        
+ 
         stage('Build Docker Images') {
+
             steps {
+
                 echo "Building all services in ${env.PROJECT_DIR}..."
-                // Tell Jenkins to step into your subfolder first
-                dir(PROJECT_DIR) { 
-                    bat 'docker compose build'
-                }
-            }
-        }
-
-        stage('Push to Docker Hub') {
-            steps {
-                // Also run from inside that folder
+ 
                 dir(PROJECT_DIR) {
-                    echo 'Logging in to Docker Hub...'
-                    withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDS, usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                        bat "docker login -u %USER% -p %PASS%"
-                    }
-                    
-                    echo 'Pushing API image...'
-                    bat "docker push %DOCKERHUB_USERNAME%/unit-converter-api:latest"
-                    
-                    echo 'Pushing Compute image...'
-                    bat "docker push %DOCKERHUB_USERNAME%/unit-converter-compute:latest"
+
+                    // Use Docker Compose v2 style on Windows
+
+                    bat '''
+
+docker --version
+
+docker compose version
+
+docker compose build
+
+'''
+
                 }
+
             }
+
+        }
+ 
+        stage('Push to Docker Hub') {
+
+            steps {
+
+                dir(PROJECT_DIR) {
+
+                    echo 'Logging in to Docker Hub...'
+ 
+                    withCredentials([usernamePassword(
+
+                        credentialsId: DOCKERHUB_CREDS,
+
+                        usernameVariable: 'USER',
+
+                        passwordVariable: 'PASS'
+
+                    )]) {
+
+                        bat 'docker login -u %USER% -p %PASS%'
+
+                    }
+ 
+                    echo 'Pushing API image...'
+
+                    bat "docker push %DOCKERHUB_USERNAME%/unit-converter-api:latest"
+ 
+                    echo 'Pushing Compute image...'
+
+                    bat "docker push %DOCKERHUB_USERNAME%/unit-converter-compute:latest"
+
+                }
+
+            }
+
+        }
+ 
+        stage('Deploy to EC2') {
+
+            steps {
+
+                echo "Deploying to ${env.EC2_HOST}..."
+ 
+                // Avoid sshagent plugin; use SSH key directly
+
+                withCredentials([sshUserPrivateKey(
+
+                    credentialsId: EC2_CREDS,
+
+                    keyFileVariable: 'SSH_KEY',
+
+                    usernameVariable: 'SSH_USER'
+
+                )]) {
+
+                    // On Windows, this runs cmd.exe. `ssh` must be on PATH
+
+                    bat """
+
+    ssh -i "%SSH_KEY%" -o StrictHostKeyChecking=no %EC2_HOST% "cd ~/my-project/${PROJECT_DIR} && docker compose pull && docker compose up -d"
+
+"""
+
+                    // If Docker Compose v1 is installed on EC2 instead, use:
+
+                    // docker-compose pull && docker-compose up -d
+
+                }
+
+            }
+
         }
 
-        stage('Deploy to EC2') {
-            steps {
-                echo "Deploying to ${env.EC2_HOST}..."
-                
-                sshagent([EC2_CREDS]) {
-                    sh '''
-                        ssh -o StrictHostKeyChecking=no ${EC2_HOST} "
-                            
-                            # This path on the EC2 server must also match!
-                            cd ~/my-project/${PROJECT_DIR} 
-                            
-                            # 1. Pull the new images from Docker Hub
-                            docker compose pull
-                            
-                            # 2. Restart the services using the new images
-                            docker compose up -d
-                        "
-                    '''
-                }
-            }
-        }
     }
-    
+ 
     post {
+
         always {
-            // Also run this from inside that folder
+
             dir(PROJECT_DIR) {
+
                 echo 'Logging out of Docker Hub...'
+
                 bat 'docker logout'
+
             }
+
         }
+
     }
+
 }
+
+ 
